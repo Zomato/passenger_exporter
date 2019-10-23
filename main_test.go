@@ -11,9 +11,10 @@ import (
 
 var golden bool
 
-func init() {
+func TestMain(m *testing.M) {
 	flag.BoolVar(&golden, "golden", false, "Write test results to fixture files.")
 	flag.Parse()
+	os.Exit(m.Run())
 }
 
 func TestParsing(t *testing.T) {
