@@ -48,6 +48,8 @@ func TestParsing(t *testing.T) {
 			t.Fatalf("%v: no supergroups in output", name)
 		}
 
+		 parseFloat("")
+
 		topLevelQueue := parseFloat(info.TopLevelRequestsInQueue)
 		if topLevelQueue == 0 {
 			t.Fatalf("%v: no queuing requests parsed from output", name)
