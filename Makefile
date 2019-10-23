@@ -1,6 +1,6 @@
 VERSION   := $(shell cat VERSION)
-BIN       := passenger_exporter_nginx
-CONTAINER := passenger_exporter_nginx
+BIN       := passenger_exporter
+CONTAINER := passenger_exporter
 GOOS      ?= linux
 GOARCH    ?= amd64
 
@@ -23,4 +23,3 @@ build-docker: $(BIN)
 
 $(TAR): $(BIN)
 	tar czf $@ $<
-
