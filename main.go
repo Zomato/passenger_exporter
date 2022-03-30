@@ -55,6 +55,7 @@ type Exporter struct {
 	appQueue         *prometheus.Desc
 	appGroupQueue    *prometheus.Desc
 	appProcsSpawning *prometheus.Desc
+	appCapacityUsed  *prometheus.Desc
 
 	// Process metrics.
 	requestsProcessed *prometheus.Desc
@@ -111,6 +112,12 @@ func NewExporter(cmd string, timeout time.Duration) *Exporter {
 			[]string{"name"},
 			nil,
 		),
+		appCapacityUsed: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "app_capacity_used"),
+			"Number of processes in this app.",
+			[]string{"name"},
+			nil,
+		),
 		appGroupQueue: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "app_group_queue"),
 			"Number of requests in app group process queues.",
@@ -164,8 +171,8 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 	for _, sg := range info.SuperGroups {
 		ch <- prometheus.MustNewConstMetric(e.appQueue, prometheus.GaugeValue, parseFloat(sg.RequestsInQueue), sg.Name)
+		ch <- prometheus.MustNewConstMetric(e.appCapacityUsed, prometheus.GaugeValue, parseFloat(sg.CapacityUsed), sg.Name)
 		ch <- prometheus.MustNewConstMetric(e.appProcsSpawning, prometheus.GaugeValue, parseFloat(sg.Group.ProcessesSpawning), sg.Name)
-
 		ch <- prometheus.MustNewConstMetric(e.appGroupQueue, prometheus.GaugeValue, parseFloat(sg.Group.GetWaitListSize), sg.Group.Name, sg.Group.Default)
 
 		// Update process identifiers map.
