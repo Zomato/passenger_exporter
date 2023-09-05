@@ -1,6 +1,6 @@
-module github.com/stuartnelson3/passenger_exporter
+module github.com/Zomato/passenger_exporter
 
-go 1.19
+go 1.18
 
 require (
 	github.com/prometheus/client_golang v0.9.0-pre1.0.20180416233856-82f5ff156b29
