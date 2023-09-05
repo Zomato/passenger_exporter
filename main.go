@@ -6,6 +6,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"io"
 	"io/ioutil"
 	"math"
@@ -18,8 +20,8 @@ import (
 	"golang.org/x/net/html/charset"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -339,8 +341,8 @@ func main() {
 	flag.Parse()
 
 	if *pidFile != "" {
-		prometheus.MustRegister(prometheus.NewProcessCollectorPIDFn(
-			func() (int, error) {
+		collectorOpts := collectors.ProcessCollectorOpts{
+			PidFn: func() (int, error) {
 				content, err := ioutil.ReadFile(*pidFile)
 				if err != nil {
 					return 0, fmt.Errorf("error reading pidfile %q: %s", *pidFile, err)
@@ -351,13 +353,14 @@ func main() {
 				}
 				return value, nil
 			},
-			namespace),
-		)
+			Namespace: namespace,
+		}
+		prometheus.MustRegister(collectors.NewProcessCollector(collectorOpts))
 	}
 
 	prometheus.MustRegister(NewExporter(*cmd, *timeout))
 
-	http.Handle(*metricsPath, prometheus.Handler())
+	http.Handle(*metricsPath, promhttp.Handler())
 
 	log.Infoln("starting passenger_exporter", version.Info())
 	log.Infoln("build context", version.BuildContext())
